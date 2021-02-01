@@ -7,14 +7,24 @@
 //
 
 import UIKit
+import SnapKit
+
+protocol LoginViewControllerDelegate: class {
+    func checkLogin(login: String, completion: (Bool) -> Void )
+    func checkPassword(password: String, completion: (Bool) -> Void )
+}
 
 @available(iOS 13.0, *)
 class LogInViewController: UIViewController {
     private let basePadding: CGFloat = 16.0
     
+    var delegate = LoginInspector()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Profile"
+        
+        Checker.checker.delegate = delegate
 
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
@@ -172,9 +182,31 @@ class LogInViewController: UIViewController {
         return logInButton
     }()
     
+    private lazy var errorLabel: UILabel = {
+        let nameLabel = UILabel()
+        nameLabel.toAutoLayout()
+        nameLabel.textColor = .red
+        nameLabel.font = UIFont.systemFont(ofSize: 16)
+        return nameLabel
+    }()
+    
     @objc func buttonPressed() {
         print("Log in button pressed")
-        self.navigationController?.pushViewController(ProfileViewController(), animated: true)
+
+        let res = Checker.checker.checkLoginAndPassword(login: loginTextField.text!, password: passwordTextField.text!)
+        if res {
+            self.navigationController?.pushViewController(ProfileViewController(), animated: true)
+        } else {
+            errorLabel.text = "the username or password is incorrect"
+            contentView.addSubview(errorLabel)
+            
+            errorLabel.snp.makeConstraints { (make) -> Void in
+                make.top.equalTo(logInButton).offset(70)
+                make.centerX.equalTo(logInButton)
+            }
+            
+            print("Login or password incorrect!")
+        }
     }
 }
 

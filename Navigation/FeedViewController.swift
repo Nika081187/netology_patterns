@@ -10,31 +10,20 @@ import UIKit
 
 @available(iOS 13.0, *)
 final class FeedViewController: UIViewController {
+    
+    var output: FeedViewOutput? = nil
+
     var date = Date()
     var calendar = Calendar.current
     var hour = 0
     var minutes = 0
     var second = 0
     
-    private lazy var postButton: UIButton = {
-        let postButton = UIButton(type: .system)
-        postButton.setTitle("Open post", for: .normal)
-        postButton.setTitleColor(.white, for: .normal)
-        postButton.addTarget(self, action: #selector(buttonPressed), for:.touchUpInside)
-        postButton.toAutoLayout()
-        return postButton
-    }()
-    
-    @objc func buttonPressed() {
-        let vc = PostViewController()
-        self.navigationController?.pushViewController(vc, animated: true)
-    }
-    
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         print(type(of: self), #function)
     }
-    
+
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         print(type(of: self), #function)
@@ -62,16 +51,27 @@ final class FeedViewController: UIViewController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(applicationDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
         
-        view.addSubview(postButton)
         view.backgroundColor = .blue
         print(type(of: self), #function)
         title = "Feed"
         
+        let containerView = ContainerView()
+        containerView.toAutoLayout()
+        containerView.onTap = {
+            guard let output = self.output else {
+                return
+            }
+            output.showPost()
+            print("onTap")
+        }
+
+        view.addSubview(containerView)
+
         NSLayoutConstraint.activate([
-            postButton.heightAnchor.constraint(equalToConstant: 50),
-            postButton.widthAnchor.constraint(equalToConstant: 100),
-            postButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            postButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            containerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            containerView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            containerView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            containerView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor)
         ])
     }
     
