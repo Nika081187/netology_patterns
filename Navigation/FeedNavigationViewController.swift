@@ -13,6 +13,9 @@ class FeedNavigationViewController: UINavigationController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        pushViewController(FeedViewController(), animated: true)
+//        let postPresenter = PostPresenter(nav: self)
+        let feed = FeedViewController()
+        feed.output = PostPresenter(nav: self)
+        pushViewController(feed, animated: true)
     }
 }
